@@ -14,3 +14,5 @@
 #coachRecommendation h3{margin-top:0}#coachInsights p{line-height:1.55}#coachHistory .historyrow{overflow-wrap:anywhere}
 
 #insights .panel p{line-height:1.55}#insights .cards{margin-bottom:16px}
+
+.market-card{background:#fff9fc;border:1px solid #e9d6e5;border-radius:14px;padding:15px;margin:12px 0;overflow-wrap:anywhere}.market-card h3{margin-top:0}.market-card a{color:#754a70;font-weight:650}.market-card p{line-height:1.5}
