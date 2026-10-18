@@ -9,3 +9,6 @@
 .santana-note{margin:22px 0;padding:22px 18px;border:2px solid #d5a7c6;border-radius:18px;background:#f9eaf4;color:#543650;text-align:center;box-shadow:0 3px 14px #754a701a}.santana-note-title{font-weight:750;font-size:1.12rem;letter-spacing:.02em}.santana-note p{font-size:1.03rem;line-height:1.65;margin:12px auto;max-width:36rem;overflow-wrap:anywhere}.santana-note-end{color:#966b92;letter-spacing:.5em}
 
 .academy-card{margin:12px 0}.academy-card h4{margin:0 0 8px}.academy-card p{line-height:1.5}.academy-card label{display:flex;align-items:center;gap:6px;margin-top:10px}#trendResults p{overflow-wrap:anywhere}
+
+/* V2.3 sales coach */
+#coachRecommendation h3{margin-top:0}#coachInsights p{line-height:1.55}#coachHistory .historyrow{overflow-wrap:anywhere}

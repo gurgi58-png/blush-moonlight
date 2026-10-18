@@ -1,3 +1,19 @@
+# Blush & Moonlight V2.3 — Personal Sales Coach
+
+Adds a **Sales Coach** tab with goal-based next-shift focus, one technique practice check-in per date, and observational comparisons of recorded shifts with and without check-ins. Existing V2.2 data, Santana's message, Academy, and offline operation are preserved.
+
+## Update your existing GitHub Pages app
+
+1. In V2.2, export a JSON backup before updating.
+2. Extract the ZIP. Open the included `blush_moonlight_v2` folder.
+3. Replace the contents of the **existing** repository folder `blush_moonlight_v2` with these files. Do not nest a second `blush_moonlight_v2` folder.
+4. Commit changes, wait for Pages deployment, open `https://gurgi58-png.github.io/blush-moonlight/blush_moonlight_v2/index.html` online and refresh. Close and reopen the home-screen app. If needed, refresh online again to update the service worker cache.
+5. Check the new **Sales Coach** tab. Enter a fictional practice, close and reopen offline, verify it persists, and export a JSON backup. Remove test data afterward.
+
+**Data safety:** V2.3 uses the same localStorage key (`blush_moonlight_v2_data`). Existing data should remain; the new `coachPractices` array defaults to empty. Backups include coaching entries, and earlier backups still import. **Import replaces all current data**. Local storage and exported JSON are not encrypted. Do not record identifiable customers, coworkers, or employer-confidential information.
+
+**Important:** This is an independent personal tool, not affiliated with the employer. Recommendations are generic, not official product or policy guidance. Comparisons are observational, and missing denominators are not inferred.
+
 # Blush & Moonlight V2.2 — Moonlight Academy
 
 Adds 7/14/30-day performance comparisons, 6 jewelry/sales lessons, 4 leadership scenarios, and 5 achievement milestones. All offline. Keeps Santana’s dashboard note and V2.1 growth plan.
