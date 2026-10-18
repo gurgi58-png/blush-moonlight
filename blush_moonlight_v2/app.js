@@ -14,7 +14,7 @@ $('date').value=todayLocal();
 const money=v=>new Intl.NumberFormat('en-CA',{style:'currency',currency:'CAD'}).format(v);
 const num=id=>Number($(id).value), opt=id=>$(id).value.trim()===''?null:Number($(id).value);
 function valid(s){return /^\d{4}-\d{2}-\d{2}$/.test(s.date)&&Number.isFinite(s.sales)&&s.sales>=0&&['transactions','units','signups'].every(k=>Number.isInteger(s[k])&&s[k]>=0)&&['opportunities','eligible'].every(k=>s[k]===null||(Number.isInteger(s[k])&&s[k]>=0))&&(!s.opportunities||s.transactions<=s.opportunities)&&(!s.eligible||s.signups<=s.eligible)&&s.notes.length<=500&&(s.hoursWorked===undefined||s.hoursWorked===null||(Number.isFinite(s.hoursWorked)&&s.hoursWorked>=0.25&&s.hoursWorked<=24))&&(s.storeSales===undefined||s.storeSales===null||(Number.isFinite(s.storeSales)&&s.storeSales>=0))&&(s.storeTarget===undefined||s.storeTarget===null||(Number.isFinite(s.storeTarget)&&s.storeTarget>=0))}
-function showPage(page){document.querySelectorAll('.page').forEach(el=>el.classList.toggle('hidden',el.id!==page));document.querySelectorAll('nav button').forEach(el=>el.classList.toggle('active',el.dataset.page===page));if(page==='dashboard')renderDashboard();if(page==='history')renderHistory();if(page==='goals')renderGoals();if(page==='development')renderDevelopment();if(page==='academy')renderAcademy();if(page==='coach')renderCoach();if(page==='insights')renderInsights();if(page==='market')renderMarket()}
+function showPage(page){document.querySelectorAll('.page').forEach(el=>el.classList.toggle('hidden',el.id!==page));document.querySelectorAll('nav button').forEach(el=>el.classList.toggle('active',el.dataset.page===page));if(page==='dashboard')renderDashboard();if(page==='history')renderHistory();if(page==='goals')renderGoals();if(page==='development')renderDevelopment();if(page==='academy')renderAcademy();if(page==='coach')renderCoach();if(page==='insights')renderInsights();if(page==='market'){renderMarket();renderLiveMarket();if(navigator.onLine)refreshLiveMarket(false)}}
 document.querySelectorAll('nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 $('shiftForm').addEventListener('submit',e=>{e.preventDefault();const s={date:$('date').value,sales:num('sales'),transactions:num('transactions'),units:num('units'),opportunities:opt('opportunities'),signups:num('signups'),eligible:opt('eligible'),hoursWorked:opt('hoursWorked'),storeSales:opt('storeSales'),storeTarget:opt('storeTarget'),notes:$('notes').value.trim()};if(!valid(s)){ $('entryMessage').textContent='Please check the values: transactions cannot exceed opportunities, and signups cannot exceed eligible opportunities.';return}const old=data.shifts;data.shifts=[...old.filter(x=>x.date!==s.date),s];if(persist())$('entryMessage').textContent='Saved! Your shift is recorded on this device. ✦';else data.shifts=old});
 function loadShift(s){for(const k of ['date','sales','transactions','units','opportunities','signups','eligible','hoursWorked','storeSales','storeTarget','notes'])$(k).value=s[k]??'';showPage('entry');window.scrollTo(0,0)}
@@ -277,3 +277,32 @@ $('marketNoteForm').addEventListener('submit',e=>{
  if(!validMarketNote(note)||data.marketNotes.length>=200){$('marketNoteStatus').textContent='Please check the note, or delete older notes before adding more.';return}
  const old=data.marketNotes;data.marketNotes=[...old,note];if(persist()){$('marketNoteStatus').textContent='Research note saved ✧';$('marketNoteForm').reset()}else data.marketNotes=old;renderMarket()
 });
+
+// V3.1: Public-only market headlines. This fetch does not transmit private sales data.
+const LIVE_FEED='./market-feed.json',LIVE_KEY='blush_moonlight_public_feed_v3_1';
+let liveMarket=null;
+try{liveMarket=JSON.parse(localStorage.getItem(LIVE_KEY))}catch{}
+function validFeed(f){return f&&typeof f==='object'&&typeof f.updated==='string'&&Array.isArray(f.items)&&f.items.length<=45&&f.items.every(x=>x&&['canada','global','brands'].includes(x.area)&&typeof x.title==='string'&&x.title.length<=260&&typeof x.source==='string'&&x.source.length<=140&&typeof x.date==='string'&&x.date.length<=40&&typeof x.url==='string'&&/^https:\/\//.test(x.url))}
+function renderLiveMarket(){
+ const el=$('liveMarketCards'),status=$('liveMarketStatus');el.replaceChildren();
+ if(!validFeed(liveMarket)){status.textContent='No cached headlines yet. Connect to the internet and tap Check for new headlines.';return}
+ const updated=new Date(liveMarket.updated);const age=Number.isFinite(updated.getTime())?Math.round((Date.now()-updated.getTime())/86400000):null;
+ status.textContent='Feed last generated: '+liveMarket.updated.slice(0,10)+(age!==null&&age>9?' · May be outdated':'')+' · Public headlines only.';
+ const area=$('marketArea').value,items=liveMarket.items.filter(x=>x.area===area).slice(0,10);
+ if(!items.length){el.textContent='No recent headlines in this category. The research snapshot above is still available.';return}
+ for(const item of items){const card=document.createElement('article');card.className='market-card';
+ const h=document.createElement('h4');h.textContent=item.title;const p=document.createElement('p');p.className='hint';p.textContent=item.source+' · '+item.date;
+ const a=document.createElement('a');a.textContent='Review source ↗';a.href=item.url;a.target='_blank';a.rel='noopener noreferrer';card.append(h,p,a);el.append(card)}
+}
+async function refreshLiveMarket(manual){
+ if(!navigator.onLine){if(manual)$('liveMarketStatus').textContent='Offline — showing the last saved public headlines, if available.';renderLiveMarket();return}
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),10000);
+ try{const res=await fetch(LIVE_FEED+'?v='+Date.now(),{cache:'no-store',signal:controller.signal});if(!res.ok)throw Error('HTTP '+res.status);
+ const incoming=await res.json();if(!validFeed(incoming))throw Error('Feed validation failed');liveMarket=incoming;
+ try{localStorage.setItem(LIVE_KEY,JSON.stringify(incoming))}catch{}renderLiveMarket();
+ if(manual)$('liveMarketStatus').textContent+=' · Checked just now.';
+ }catch{renderLiveMarket();if(manual)$('liveMarketStatus').textContent+=' · Could not reach the feed; showing cached content.'}
+ finally{clearTimeout(timer)}
+}
+$('refreshMarket').addEventListener('click',()=>refreshLiveMarket(true));
+$('marketArea').addEventListener('change',renderLiveMarket);
