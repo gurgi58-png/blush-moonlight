@@ -1,3 +1,11 @@
+# V3.2 — Direct UPT entry
+
+Santana now enters the Units Per Transaction (UPT) figure shown by her work dashboard. The app uses a transaction-weighted average across shifts, not a simple mean. Historical records containing `units` remain readable and are converted to UPT for display. JSON imports from V3.1 remain supported; backups now include direct `upt` values. The sales CSV includes both UPT and historical units where present.
+
+**Update:** Export a backup first, then replace only the contents of your existing `blush_moonlight_v2` GitHub folder with this package’s `blush_moonlight_v2` contents. Do not replace `.github/workflows/` or `scripts/` with anything from the app folder. The weekly market updater is unchanged.
+
+**Important:** For zero-transaction shifts, enter 0 UPT. UPT is capped at 100 to catch accidental entries. Store sales are optional and subject to employer permission.
+
 # V3.1 installation — two upload locations
 
 **Before upgrading:** export a private JSON backup from the app. Never upload the backup to GitHub.
